@@ -1,8 +1,2 @@
-in:
 nvcc -o bond bond.cu
-./bond
-out:
-8.6603
-8.6603
-58.6795
-0.0000
+./bond 1000
