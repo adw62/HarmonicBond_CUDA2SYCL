@@ -1,0 +1,8 @@
+in:
+dpcpp bond.cpp -o bond
+./bond
+out:
+8.6603
+58.6795
+8.6603
+0
