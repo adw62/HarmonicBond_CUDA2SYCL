@@ -27,38 +27,11 @@ __device__ inline long long realToFixedPoint(float x) {
     return static_cast<long long>(x * 0x100000000);
 }
 
-extern "C" __global__ void computeBondedForces() {
-
-int groups = 1;
-int num_atoms = 2;
-
-//make idxs
-uint2* atomIndices0_0 = new uint2[num_atoms]();
-atomIndices0_0[0] = {0, 1};
-atomIndices0_0[1] = {1, 0};
-
-//make force running total
-unsigned long long* forceBuffer = new unsigned long long[num_atoms]();
-forceBuffer[0] = 0.0;
-forceBuffer[1] = 0.0;
-
-//make energy running total
-float* energyBuffer = new float[num_atoms]();
-energyBuffer[0] = 0.0;
-energyBuffer[1] = 0.0;
-
-//make positions
-float4* posq = new float4[num_atoms]();
-posq[0] = {0.0,0.0,0.0,0.0};
-posq[1] = {5.0,5.0,5.0,0.0};
-
-//make bond params, (r0, k)
-float2* params = new float2[num_atoms]();
-params[0] = {1, 2};
-params[1] = {1, 0};
+extern "C" __global__ void computeBondedForces(unsigned long long* __restrict__ forceBuffer,
+ float* __restrict__ energyBuffer, const float4* __restrict__ posq,
+  const uint2* __restrict__ atomIndices0_0, float2* params) {
 
 float energy = 0;
-if ((groups&1) != 0)
 for (unsigned int index = blockIdx.x*blockDim.x+threadIdx.x; index < 2; index += blockDim.x*gridDim.x) {
     uint2 atoms0 = atomIndices0_0[index];
     unsigned int atom1 = atoms0.x;
@@ -97,7 +70,54 @@ printf("%6.4lf\n", energy);
 
 int main() {
 
-computeBondedForces<<<1, 2>>>();
+int num_atoms = 2;
+
+//make idxs
+uint2* atomIndices0_0 = new uint2[num_atoms]();
+uint2* atomIndices0_0_h = new uint2[num_atoms]();
+atomIndices0_0_h[0] = {0, 1};
+atomIndices0_0_h[1] = {1, 0};
+
+cudaMalloc((void **) &atomIndices0_0, num_atoms*sizeof(uint2));
+cudaMemcpy(atomIndices0_0, atomIndices0_0_h, num_atoms*sizeof(uint2), cudaMemcpyHostToDevice);
+
+//make force running total
+unsigned long long* forceBuffer = new unsigned long long[num_atoms]();
+unsigned long long* forceBuffer_h = new unsigned long long[num_atoms]();
+forceBuffer_h[0] = 0.0;
+forceBuffer_h[1] = 0.0;
+
+cudaMalloc((void **) &forceBuffer, num_atoms*sizeof(unsigned long long));
+cudaMemcpy(forceBuffer, forceBuffer_h, num_atoms*sizeof(unsigned long long), cudaMemcpyHostToDevice);
+
+//make energy running total
+float* energyBuffer = new float[num_atoms]();
+float* energyBuffer_h = new float[num_atoms]();
+energyBuffer_h[0] = 0.0;
+energyBuffer_h[1] = 0.0;
+
+cudaMalloc((void **) &energyBuffer, num_atoms*sizeof(float));
+cudaMemcpy(energyBuffer, energyBuffer_h, num_atoms*sizeof(float), cudaMemcpyHostToDevice);
+
+//make positions
+float4* posq = new float4[num_atoms]();
+float4* posq_h = new float4[num_atoms]();
+posq_h[0] = {0.0,0.0,0.0,0.0};
+posq_h[1] = {5.0,5.0,5.0,0.0};
+
+cudaMalloc((void **) &posq, num_atoms*sizeof(float4));
+cudaMemcpy(posq, posq_h, num_atoms*sizeof(float4), cudaMemcpyHostToDevice);
+
+//make bond params, (r0, k)
+float2* params = new float2[num_atoms]();
+float2* params_h = new float2[num_atoms]();
+params_h[0] = {1, 2};
+params_h[1] = {1, 0};
+
+cudaMalloc((void **) &params, num_atoms*sizeof(float2));
+cudaMemcpy(params, params_h, num_atoms*sizeof(float2), cudaMemcpyHostToDevice);
+
+computeBondedForces<<<1, 2>>>(forceBuffer, energyBuffer, posq, atomIndices0_0, params);
 
 cudaError_t cudaerr = cudaDeviceSynchronize();
 if (cudaerr != cudaSuccess)
