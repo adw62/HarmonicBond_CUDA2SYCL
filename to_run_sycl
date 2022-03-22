@@ -1,2 +1,2 @@
 dpcpp bond.cpp -o bond
-./bond 1000
+python time.py
