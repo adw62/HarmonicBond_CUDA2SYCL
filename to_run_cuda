@@ -1,2 +1,2 @@
 nvcc -o bond bond.cu
-./bond 1000
+python time.py
