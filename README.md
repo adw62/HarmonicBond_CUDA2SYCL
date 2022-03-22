@@ -9,4 +9,5 @@ These can be timed by running: `python time.py`
 
 Running the CUDA code on Nvidia M1000M and SYCL code on Intel DevCloud targeting DG1(XeMax) yeilds the following results:
 
-![OpenMM](https://user-images.githubusercontent.com/38112687/159527297-28096dff-7a52-43ac-8731-e18680d913a8.png)
+![openmm2](https://user-images.githubusercontent.com/38112687/159540167-69e85cb0-beba-492b-9090-3f534a80dea7.png)
+
