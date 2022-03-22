@@ -1,2 +1,0 @@
-dpcpp bond.cpp -o bond
-python time.py
