@@ -7,7 +7,7 @@ The SYCL code can be complied with: `dpcpp bond.cpp -o bond`
 
 These can be timed by running: `python time.py` 
 
-Running the CUDA code on Nvidia M1000M and SYCL code on Intel DevCloud targeting DG1(XeMax) yeilds the following results:
+Running the CUDA code on Nvidia M1000M and SYCL code on Intel DevCloud targeting XeMax yeilds the following results:
 
 ![openmm2](https://user-images.githubusercontent.com/38112687/159540167-69e85cb0-beba-492b-9090-3f534a80dea7.png)
 
